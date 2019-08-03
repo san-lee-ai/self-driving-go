@@ -1,8 +1,8 @@
-# Remote Controlled GoPiGo3
+# Self-driving-go car based on Remote Controlled GoPiGo3
 
-In this project we remotely control a GoPiGo3 robot via a mobile device or a laptop.
+In this project we remotely control a GoPiGo3 self-driving car via a mobile device or a laptop.
 
-![Imgur](http://i.imgur.com/sT2tHuPl.jpg)
+![Self-driving Go](images/self_driving_go.jpg)
 
 ## Requirements
 
@@ -12,6 +12,7 @@ We need the following components for this project:
 * A [Raspberry Pi](https://www.dexterindustries.com/raspberry-pi/).
 * A [Pi Camera](https://www.dexterindustries.com/shop/raspberry-pi-camera/).
 * A laptop or a mobile device (aka smartphone).
+* A Linux Box with GPU (which supports Nvidia Cuda libary for Keras)
 
 ## Setting Up
 
@@ -38,6 +39,36 @@ If you don't have `Raspbian For Robots`, then you'll need to see what's your int
 
 Also, please make sure you have your mobile device / laptop on the same network as your `GoPiGo3`. Otherwise, you won't be able to access it.
 
+## Generating training data
+* use Keyboard to drive the self-drive car instead of mouse joystick
+* arrow keys:
+  * up - forward
+  * left - left
+  * right - right
+  * space - break to stop
+  * q - speed up by increasing throttle
+  * w - sepped down by decreasing throttle
+  * p - turn on the lights
+  * o - turn off the lights
+
+## Run self-driving-go
+* training data will be generated on the raspberry folder ~/test/training
+* tar cvzf training_left.tgz training/*
+
+Each round you need to tar and zip for retaining previous data
+
+## Run jupyter notebook on your linux box for deep learning
+1. open self-driving-go.ipynb 
+2. get the model.h5 at the end of training
+3. upload model.h5 on raspberry pi
+
+## Run self-driving-go with trained model 
+(This time you don't need to drive it but watch it out for unexpected behaviour)
+
+```
+$ python3 self_driving_go.py
+```
+
 ## Setting Up to Run on Boot
 You can run the server on boot so you don't have to run it manually.  Use the command
 `install_startup.sh`
@@ -49,9 +80,6 @@ On reboot, connect to the WiFi service "Dex".
 
 ## YouTube Video
 
-#### When loading `http://dex.local:5000` for the first time, click a couple of times on the screen without moving the mouse around, in order to enable the "joystick" functionality.
-
 Here's a YouTube video of this project:
 
-[![Alt text](https://img.youtube.com/vi/jyg_nt28ktk/0.jpg)](https://youtu.be/jyg_nt28ktk)
-# self-driving-go
+[![Self Driving Go](https://img.youtube.com/vi/jyg_nt28ktk/0.jpg)](https://youtu.be/jyg_nt28ktk)

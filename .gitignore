@@ -3,6 +3,7 @@
 ### traing data
 training/
 track/
+.h5
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
