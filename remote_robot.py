@@ -102,10 +102,16 @@ def robot_commands():
     state = args['state']
     angle_degrees = int(float(args['angle_degrees']))
     angle_dir = args['angle_dir']
+    light = args['light']
     force = float(args['force'])
     determined_speed = MIN_SPEED + force * (MAX_SPEED - MIN_SPEED) / MAX_FORCE
     if determined_speed > MAX_SPEED:
         determined_speed = MAX_SPEED
+
+    if light == 'on':
+        gopigo3_robot.open_eyes()
+    else:
+        gopigo3_robot.close_eyes()
 
     if state == 'move':
         # for moving backward
@@ -114,6 +120,10 @@ def robot_commands():
             gopigo3_robot.backward()
 
         # for moving to the left or forward
+        if angle_degrees == 90 :
+            gopigo3_robot.set_motor_dps(gopigo3_robot.MOTOR_RIGHT, determined_speed)
+            gopigo3_robot.set_motor_dps(gopigo3_robot.MOTOR_LEFT, determined_speed)
+
         if angle_degrees > 90 and angle_degrees < 260:
             gopigo3_robot.set_motor_dps(gopigo3_robot.MOTOR_RIGHT, determined_speed)
 

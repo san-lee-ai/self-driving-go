@@ -8,37 +8,119 @@
     <script src="static/jquery-3.2.1.min.js"></script>
     <script src="static/throttle.js"></script>
 
-    <title>Remote GoPiGo3</title>
+    <title>AISim for GoPiGo3</title>
 
+    <script type="text/javascript">
+      function init(){
+       // output = document.getElementById("output");
+       document.onkeydown = updateKeys;
+       console.log('keyboard event started')
+      } // end init
+
+      var server_address = window.location.protocol + "//" + window.location.host + "/robot";
+      var gopigo3_orientation = {
+          state: 'stop',
+          angle_degrees: 0,
+          angle_dir: 'forward',
+          light: 'off',
+          force: 1
+      };
+      var query_string = ''
+
+      updateKeys = function(e){
+       //set current key
+       currentKey = e.keyCode;
+       // output.innerHTML = "current key: " + currentKey;
+       // document.getElementById('keyboard').innerHTML = 'Keboard Force: ' + currentKey;
+       if (currentKey == 38) {
+         gopigo3_orientation.state = 'move';
+         gopigo3_orientation.angle_degrees = 90;
+         gopigo3_orientation.angle_dir = 'forward';
+         gopigo3_orientation.light = 'on';
+         gopigo3_orientation.force = 1;
+       } else if (currentKey == 37) {
+         gopigo3_orientation.state = 'move';
+         gopigo3_orientation.angle_degrees += 20;
+         gopigo3_orientation.angle_dir = 'left';
+         if (gopigo3_orientation.angle_degrees > 180) {
+           gopigo3_orientation.angle_degrees = 180;
+         }
+         gopigo3_orientation.light = 'on';
+         gopigo3_orientation.force = 1;
+       } else if (currentKey == 39) {
+         gopigo3_orientation.state = 'move';
+         gopigo3_orientation.angle_degrees -= 20;
+         if (gopigo3_orientation.angle_degrees < 0) {
+           gopigo3_orientation.angle_degrees = 0;
+         }
+         gopigo3_orientation.angle_dir = 'right';
+         gopigo3_orientation.light = 'on';
+         gopigo3_orientation.force = 1;
+       } else if (currentKey == 32) {
+         gopigo3_orientation.state = 'stop';
+         gopigo3_orientation.angle_degrees = 0;
+         gopigo3_orientation.angle_dir = 'stop';
+         gopigo3_orientation.light = 'off';
+         gopigo3_orientation.force = 0;
+       } else if (currentKey == 81) { // q acceleartor
+         gopigo3_orientation.force += 0.5;
+       } else if (currentKey == 87) { // w break
+         gopigo3_orientation.force -= 0.5;
+         if (gopigo3_orientation.force < 0) {
+           gopigo3_orientation.force = 0;
+         }
+       } else if (currentKey == 80) { // p light on
+         gopigo3_orientation.light = 'on';
+       } else if (currentKey == 79) { // o light off
+         gopigo3_orientation.light = 'off';
+       }
+       query_string = '?' + $.param(gopigo3_orientation);
+       document.getElementById('keyboard').innerHTML = 'Keyboard: ' + currentKey;
+       document.getElementById('debug').innerHTML = 'debug log: ' + server_address + query_string;
+       send_throttled_data(server_address, query_string, gopigo3_orientation);
+       // var send_throttled_data = throttle(function(server_address, query_string, sent_data){
+       //     setOnScreen(sent_data);
+       //     console.log('move robot', sent_data);
+       //
+       //     $.post(server_address + query_string);
+       // }, 250);
+      }
+      init();
+    </script>
   </head>
   <body>
 
     <div class="container">
-        <div id="zone_joystick">
-          <script language="JavaScript">
-            document.write('<img id="video_source" src="' + window.location.protocol + '//' + window.location.hostname + ':5001' + '/stream.mjpg' + '"/>' );
-          </script>
+      <div id="zone_joystick">
+        <script language="JavaScript">
+          document.write('<img id="video_source" src="' + window.location.protocol + '//' + window.location.hostname + ':5001' + '/stream.mjpg' + '"/>' );
+        </script>
+          <!--
+          Example of video source shown on the whole page
 
-            <!--
-            Example of video source shown on the whole page
-
-            <video poster="https://s3-us-west-2.amazonaws.com/s.cdpn.io/4273/polina.jpg" id="bgvid" playsinline autoplay muted loop>
-            WCAG general accessibility recommendation is that media such as background video play through only once. Loop turned on for the purposes of illustration; if removed, the end of the video will fade in the same way created by pressing the "Pause" button
-            <!--<source src="http://thenewcode.com/assets/videos/polina.webm" type="video/webm">
-            <source src="http://thenewcode.com/assets/videos/polina.mp4" type="video/mp4">
-            </video>
-            -->
-
+          <video poster="https://s3-us-west-2.amazonaws.com/s.cdpn.io/4273/polina.jpg" id="bgvid" playsinline autoplay muted loop>
+          WCAG general accessibility recommendation is that media such as background video play through only once. Loop turned on for the purposes of illustration; if removed, the end of the video will fade in the same way created by pressing the "Pause" button
+          <!--<source src="http://thenewcode.com/assets/videos/polina.webm" type="video/webm">
+          <source src="http://thenewcode.com/assets/videos/polina.mp4" type="video/mp4">
+          </video>
+          -->
+      </div>
+      <div class="robot">
+        AISim for GoPiGo3 - Live Stream
+        <ul>
+            <li id="state">State: Stop</li>
+            <li id="angle_deg">Angle Degrees: 0°</li>
+            <li id="angle_dir">Angle Direction: Up</li>
+            <li id="force">Joystick Force: 1.0</li>
+            <li id="keyboard">Keboard:</li>
+        </ul>
+      </div>
+      <!-- Other elements here -->
+      <div class="debug">
+        <div id="debug">
+          Debug
         </div>
-        <div class="robot">
-            GoPiGo3 - Live Stream
-            <ul>
-                <li id="state">State: Stop</li>
-                <li id="angle_deg">Angle Degrees: 0°</li>
-                <li id="angle_dir">Angle Direction: Up</li>
-                <li id="force">Joystick Force: 1.0</li>
-            </ul>
-        </div>
+      </div>
     </div>
 
     <script>

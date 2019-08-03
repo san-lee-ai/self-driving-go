@@ -18,11 +18,25 @@
   background-position: center center;
 }
 
+/* #container {
+  position: relative;
+} */
+
+#debug {
+  position: absolute;
+  height: auto;
+  width: 100%;
+  min-width: 220px;
+  left: 0.5%;
+  top: 90%;
+  padding: 1%;
+}
+
 .robot {
   position: absolute;
   height: auto;
-  width: 20%;
-  min-width: 220px;
+  width: 30%;
+  min-width: 300px;
   left: 0.5%;
   top: 0.5%;
   padding: 1%;
