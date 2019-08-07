@@ -76,4 +76,4 @@ $ python3 self_driving_go.py
 
 이 프로젝트를 소개한 유튜브 영상입니다:
 
-[![Self Driving Go](https://img.youtube.com/vi/jyg_nt28ktk/0.jpg)](https://youtu.be/jyg_nt28ktk)
+[![Self Driving Go](images/self_driving_go_youtube.jpg)](https://youtu.be/S1khLwfSIi8)
