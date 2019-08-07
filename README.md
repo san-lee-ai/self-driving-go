@@ -1,85 +1,79 @@
-# Self-driving-go car based on Remote Controlled GoPiGo3
+# 원격 조종 GoPiGo3를 기반으로 한 자율주행차 제작 Self-driving-go
 
-In this project we remotely control a GoPiGo3 self-driving car via a mobile device or a laptop.
+이 프로젝트에서 우리는 모바일 기기나 노트북으로 GoPiGo3 자동차를 원격으로 조종합니다.
+여기에 컴퓨터비전을 기반으로 한 자율주행차 제작을 위한
+* 학습데이터 획득
+* 딥러닝 학습
+* 자율주행 시험주행
+전과정을 담고 있습니다.
 
 ![Self-driving Go](images/self_driving_go.jpg)
 
-## Requirements
+## 요구사항
 
-We need the following components for this project:
+이 프로젝트를 위해 필요한 것들입니다:
 
-* A [GoPiGo3](https://www.dexterindustries.com/gopigo3/) robot - it also includes the battery pack.
-* A [Raspberry Pi](https://www.dexterindustries.com/raspberry-pi/).
-* A [Pi Camera](https://www.dexterindustries.com/shop/raspberry-pi-camera/).
-* A laptop or a mobile device (aka smartphone).
-* A Linux Box with GPU (which supports Nvidia Cuda libary for Keras)
+* [GoPiGo3](https://amzn.to/2KnbXhP) 로봇 키트.
+* [Raspberry Pi](https://amzn.to/31l8rdi) 이미지 프로세싱, AI 엔진
+* [Pi Camera](https://amzn.to/2GRT04K) 카메라 모듈.
+* 노트북 혹은 스마트폰 (키보드 주행을 위해 노트북 선호).
+* 인공지능 학습(딥러닝)을 위한 GPU 장착된 리눅스 컴퓨터
 
-## Setting Up
+## 설정
 
-In order to proceed the setup, make sure you have the `GoPiGo3` repository installed (not just cloned, but also installed) or that you have the latest version of `Raspbian For Robots`.
-
-After going through the above paragraph, install the `Pi Camera` dependencies and `Flask` by running following command:
+1. GoPiGo3 설치 - `Raspbian For Robots` 설치 확인
+2. 의존성 모듈 설치
  ```
  sudo pip3 install -r requirements.txt
  ```
+3. TensorFlow 설치 - 뉴럴넷 inference용
 
-You should now have everything set up.
+## 실행
 
-## Running it
-
-Start the server by typing the following command:
+다음 명령을 입력합니다:
 ```
 python3 remote_robot.py
 ```
-It's going to take a couple of seconds for the server to fire up.
-The web app is set to port `5000` whereas the video stream is found at port `5001`.
+플래스크 웹앱이 실행되는 라스베리 서버 주소를 브라우저에서 입력하면 카메라 화면을 볼 수 있고 주행이 준비된 상태입니다.
 
-If you have got `Raspbian For Robots` installed, then going to `http://dex.local:5000` address will be enough.
-If you don't have `Raspbian For Robots`, then you'll need to see what's your interface's IP address.
+웹앱은 포트 5000으로 설정되어 있고 비디오 스트리밍은 5001로 설정되어 있습니다.
 
-Also, please make sure you have your mobile device / laptop on the same network as your `GoPiGo3`. Otherwise, you won't be able to access it.
+모든 파일이 웹앱이 위치한 폴더에 있어야 합니다.
 
-## Generating training data
-* use Keyboard to drive the self-drive car instead of mouse joystick
-* arrow keys:
-  * up - forward
-  * left - left
-  * right - right
-  * space - break to stop
-  * q - speed up by increasing throttle
-  * w - sepped down by decreasing throttle
-  * p - turn on the lights
-  * o - turn off the lights
+## 훈련 데이터 생성
+* 원래 제공된 마우스를 이용하지 않고 키보드를 사용해 주행하면서 이미지와 주행 방향 정보를 획득합니다.
+* 방향키를 이용합니다.:
+  * up - 전진
+  * left - 좌회전
+  * right - 우회전
+  * space - 정지
+  * q - 가속
+  * w - 감속
+  * p - 조명 켜기
+  * o - 조명 끄기
 
-## Run self-driving-go
-* training data will be generated on the raspberry folder ~/test/training
-* tar cvzf training_left.tgz training/*
+## 데이터 준비
+* 충분한 주행을 마친 후 훈련데이터는 `~/test/training`에 저장됩니다. 매번 새로 생성되기 때문에 주행마다 다음과 같이 tar 압축해줍니다.
+* `tar cvzf training_left.tgz training/*`
 
-Each round you need to tar and zip for retaining previous data
+## 딥러닝을 통한 뉴럴넷 학습
+1. jupyter notebook을 실행하고,
+2. self-driving-go.ipynb를 엽니다.
+3. 코드를 따라 학습하면 `model.h5`파일을 얻게 됩니다.
+4. 이 파일을 raspberry pi의 해당 폴더에 업로드합니다.
 
-## Run jupyter notebook on your linux box for deep learning
-1. open self-driving-go.ipynb 
-2. get the model.h5 at the end of training
-3. upload model.h5 on raspberry pi
+![Deeplearning 학습 과정입니다.](images/training_result.jpg)
 
-## Run self-driving-go with trained model 
-(This time you don't need to drive it but watch it out for unexpected behaviour)
+## 자율주행 시험
+(자율주행이기 때문에 직접 조종할 필요는 없습니다. 하지만 예기치 못한 작동으로 인한 불의의 사고를 방지하기 위해 감시해야 합니다.
 
 ```
 $ python3 self_driving_go.py
 ```
-
-## Setting Up to Run on Boot
-You can run the server on boot so you don't have to run it manually.  Use the command
-`install_startup.sh`
-and this should start the flask server on boot.  You should be able to connect to the robot using "http://dex.local:5000" or if using the Cinch setup, you can use "http://10.10.10.10:5000"
-
-You can setup Cinch, which will automatically setup a wifi access point, with the command
-`sudo bash /home/pi/di_update/Raspbian_For_Robots/upd_script/wifi/cinch_setup.sh`
-On reboot, connect to the WiFi service "Dex".
+이 명령어를 실행하면, 컴퓨터 비전으로 입력된 정보와 학습된 주행방향으로 자율주행이 시작됩니다.
 
 ## YouTube Video
 
-Here's a YouTube video of this project:
+이 프로젝트를 소개한 유튜브 영상입니다:
 
 [![Self Driving Go](https://img.youtube.com/vi/jyg_nt28ktk/0.jpg)](https://youtu.be/jyg_nt28ktk)

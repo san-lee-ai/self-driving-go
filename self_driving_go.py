@@ -89,7 +89,7 @@ HOST = "0.0.0.0"
 WEB_PORT = 5000
 app = Flask(__name__, static_url_path='')
 
-state = ''
+state = 'stop'
 angle_degrees = 0
 angle_dir = ''
 force = 0
@@ -113,8 +113,20 @@ class WebServerThread(Thread):
         logging.info('Stopping Flask server')
         self.srv.shutdown()
 
+@app.route("/robot", methods = ["POST"])
+def get_commands():
+    global state
+    args = request.args
+    state = args['state']
+
+    resp = Response()
+    resp.mimetype = "application/json"
+    resp.status = "OK"
+    resp.status_code = 200
+
+    return resp
+
 def robot_commands(angle_degrees):
-    state = 'self' # self-driving
     angle_dir = 'self'
     force = 1.5 # //float(args['force'])
     #
@@ -122,13 +134,18 @@ def robot_commands(angle_degrees):
     if determined_speed > MAX_SPEED:
         determined_speed = MAX_SPEED
 
-    if state == 'self':
+    if state == 'move':
+        gopigo3_robot.open_eyes()
         # for moving backward
         if angle_degrees >= 260 and angle_degrees <= 280:
             gopigo3_robot.set_speed(determined_speed)
             gopigo3_robot.backward()
 
         # for moving to the left or forward
+        if angle_degrees == 90 :
+            gopigo3_robot.set_motor_dps(gopigo3_robot.MOTOR_RIGHT, determined_speed)
+            gopigo3_robot.set_motor_dps(gopigo3_robot.MOTOR_LEFT, determined_speed)
+
         if angle_degrees > 90 and angle_degrees < 260:
             gopigo3_robot.set_motor_dps(gopigo3_robot.MOTOR_RIGHT, determined_speed)
 
@@ -149,6 +166,19 @@ def robot_commands(angle_degrees):
 
             right_motor_percentage = (angle_degrees - 280) / 80 - 1
             gopigo3_robot.set_motor_dps(gopigo3_robot.MOTOR_RIGHT, determined_speed * right_motor_percentage)
+
+    elif state == 'stop':
+        gopigo3_robot.close_eyes()
+        gopigo3_robot.stop()
+    else:
+        app.logging.warning('unknown state sent')
+
+    resp = Response()
+    resp.mimetype = "application/json"
+    resp.status = "OK"
+    resp.status_code = 200
+
+    return resp
 
 @app.route("/")
 def index():
@@ -270,7 +300,7 @@ if __name__ == "__main__":
     #
     cleanup()
     # loading model
-    model = load_model('model2.h5')
+    model = load_model('model.h5')
     # registering both types of signals
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)

@@ -4,6 +4,7 @@
 training/
 track/
 .h5
+*.tgz
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
